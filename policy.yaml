@@ -1,0 +1,7 @@
+rules:
+  - action: allow
+    source: host1
+    destination: host2
+  - action: block
+    source: host1
+    destination: host3

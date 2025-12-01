@@ -1,0 +1,40 @@
+# .github/workflows/ci-cd.yml
+
+name: SDN DevOps Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pyyaml requests
+
+      - name: Run unit tests
+        run: |
+          pytest controller/tests
+
+      - name: Apply SDN policy
+        run: |
+          python controller/controller.py
+
+      - name: Notify Webex
+        env:
+          WEBEX_TOKEN: ${{ secrets.WEBEX_TOKEN }}
+          WEBEX_ROOM_ID: ${{ secrets.WEBEX_ROOM_ID }}
+        run: |
+          python notifications/webex_notify.py
